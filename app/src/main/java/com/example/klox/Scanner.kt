@@ -61,9 +61,12 @@ internal class Scanner(val source: String) {
             // Considering slash and comment
             '/' -> {
                 if (match('/')) {
-                    // A comment goes until the end of the line.
+                    // For single comment
                     while (peek() != '\n' && !isAtEnd()) advance()
-                } else {
+                } else if (match('*')) {
+                    blockComment()
+                }
+                else {
                     addToken(SLASH)
                 }
             }
@@ -77,6 +80,31 @@ internal class Scanner(val source: String) {
                     else -> throw RuntimeException("Unexpected character.")
                 }
             }
+        }
+    }
+
+    private fun blockComment() {
+        var nestedLevel = 1
+
+        while (nestedLevel > 0 && !isAtEnd()) {
+            when {
+                peek() == '\n' -> line++
+                peek() == '/' && peekNext() == '*' -> {
+                    advance()
+                    advance()
+                    nestedLevel++
+                }
+                peek() == '*' && peekNext() == '/' -> {
+                    advance()
+                    advance()
+                    nestedLevel--
+                }
+                else -> advance()
+            }
+        }
+
+        if (nestedLevel > 0) {
+            throw RuntimeException("Unterminated block comment on $line")
         }
     }
 
