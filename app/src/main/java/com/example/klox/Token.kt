@@ -1,6 +1,6 @@
 package com.example.klox
 
-internal data class Token(
+public data class Token(
     val type: TokenType,
     val lexeme: String,
     val literal: Any?,
